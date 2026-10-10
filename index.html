@@ -54,17 +54,17 @@ setTimeout(function(){
 },8000);
 
 const stops = [
-  {n:1, name:"Portón de Campo",        desc:"Historisches Stadttor mit Zugbrücke (18. Jh.) – Start der Tour.", lat:-34.46235, lng:-57.84610, sec:"morn"},
-  {n:2, name:"Calle de los Suspiros",   desc:"\"Straße der Seufzer\" – kopfsteingepflastert, Richtung Río de la Plata.", lat:-34.46180, lng:-57.84600, sec:"morn"},
-  {n:3, name:"Plaza Mayor",             desc:"Hauptplatz der Altstadt, koloniale Bauten ringsum.", lat:-34.46200, lng:-57.84670, sec:"morn"},
-  {n:4, name:"Basílica del Santísimo Sacramento", desc:"Älteste Kirche Uruguays (~1680), Turmblick.", lat:-34.46160, lng:-57.84620, sec:"morn"},
-  {n:5, name:"Faro de Colonia (Leuchtturm)", desc:"Auf den Ruinen des portug. Konvents; beste 360°-Aussicht.", lat:-34.46130, lng:-57.84580, sec:"morn"},
-  {n:6, name:"Museo Portugués",         desc:"Portugiesische Kolonialgeschichte, Möbel, Waffen.", lat:-34.46210, lng:-57.84630, sec:"aft"},
-  {n:7, name:"Museo Español",           desc:"Spanische Periode der Stadt.", lat:-34.46225, lng:-57.84645, sec:"aft"},
-  {n:8, name:"Casa de Nacarello",       desc:"Restauriertes Kolonialhaus mit Originaleinrichtung.", lat:-34.46240, lng:-57.84660, sec:"aft"},
-  {n:9, name:"Muelle de Yates (Yachthafen)", desc:"Alter Holzpier, Fischerboote, Fotomotiv.", lat:-34.46175, lng:-57.84780, sec:"aft"},
-  {n:10,name:"Bastión del Carmen",      desc:"Ehem. Festungsturm, Kulturzentrum + Café, Wasserblick.", lat:-34.46000, lng:-57.84900, sec:"aft"},
-  {n:11,name:"Plaza de Toros Real de San Carlos", desc:"Ehem. Stierkampfarena (1909), Mudéjar-Ruine (~2 km westlich).", lat:-34.45600, lng:-57.87250, sec:"opt"},
+  {n:1, name:"Portón de Campo",        desc:"Historisches Stadttor mit Zugbrücke (18. Jh.) – Start der Tour.", lat:-34.47270, lng:-57.85045, sec:"morn"},
+  {n:2, name:"Calle de los Suspiros",   desc:"\"Straße der Seufzer\" – kopfsteingepflastert, Richtung Río de la Plata.", lat:-34.47283, lng:-57.85112, sec:"morn"},
+  {n:3, name:"Plaza Mayor",             desc:"Hauptplatz der Altstadt (Plaza de Armas), koloniale Bauten ringsum.", lat:-34.47142, lng:-57.85082, sec:"morn"},
+  {n:4, name:"Basílica del Santísimo Sacramento", desc:"Älteste Kirche Uruguays (~1680), Turmblick.", lat:-34.47110, lng:-57.85073, sec:"morn"},
+  {n:5, name:"Faro de Colonia (Leuchtturm)", desc:"Auf den Ruinen des portug. Konvents; beste 360°-Aussicht.", lat:-34.47282, lng:-57.85227, sec:"morn"},
+  {n:6, name:"Museo Portugués",         desc:"Portugiesische Kolonialgeschichte, Möbel, Waffen.", lat:-34.47270, lng:-57.85143, sec:"aft"},
+  {n:7, name:"Museo Español",           desc:"Spanische Periode der Stadt.", lat:-34.46996, lng:-57.85151, sec:"aft"},
+  {n:8, name:"Casa de Nacarello",       desc:"Restauriertes Kolonialhaus mit Originaleinrichtung.", lat:-34.47244, lng:-57.85241, sec:"aft"},
+  {n:9, name:"Muelle de Yates (Yachthafen)", desc:"Alter Holzsteg (Muelle de Madera), Fischerboote, Fotomotiv.", lat:-34.46897, lng:-57.85182, sec:"aft"},
+  {n:10,name:"Bastión del Carmen",      desc:"Ehem. Festungsturm, Kulturzentrum + Café, Wasserblick.", lat:-34.46929, lng:-57.85028, sec:"aft"},
+  {n:11,name:"Plaza de Toros Real de San Carlos", desc:"Ehem. Stierkampfarena (1909), Mudéjar-Ruine (~2 km westlich).", lat:-34.43655, lng:-57.86562, sec:"opt"},
 ];
 
 const color = {morn:"#1f6feb", aft:"#1a8a3a", opt:"#d98324"};
@@ -72,7 +72,7 @@ const label = {morn:"Vormittag", aft:"Nachmittag", opt:"Optional"};
 
 if(typeof L==='undefined'){ fail('Karten-Bibliothek (Leaflet) konnte nicht vom CDN geladen werden.'); }
 else {
-  const map = L.map('map',{zoomControl:true}).setView([-34.4620,-57.8465],16);
+  const map = L.map('map',{zoomControl:true}).setView([-34.4710,-57.8510],16);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
     maxZoom:19, attribution:'© OpenStreetMap'
   }).addTo(map);
