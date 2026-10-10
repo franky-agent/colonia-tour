@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Colonia del Sacramento – Wegeplan mit Karte</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
-  html,body{margin:0;height:100%;font-family:system-ui,Segoe UI,Roboto,sans-serif;background:#f4f1ea;color:#222}
-  #map{position:absolute;top:0;left:0;width:100%;height:100%}
+  html,body{margin:0;padding:0;height:100%;font-family:system-ui,Segoe UI,Roboto,sans-serif;background:#f4f1ea;color:#222}
+  #map{position:absolute;top:0;left:0;width:100%;height:100%;background:#aadaff;z-index:1}
   #panel{
     position:absolute;top:10px;left:10px;z-index:1000;
     width:330px;max-width:calc(100vw - 20px);max-height:calc(100vh - 20px);overflow:auto;
-    background:rgba(255,255,255,.96);border-radius:12px;box-shadow:0 4px 18px rgba(0,0,0,.18);
+    background:rgba(255,255,255,.97);border-radius:12px;box-shadow:0 4px 18px rgba(0,0,0,.18);
     padding:14px 16px 18px;box-sizing:border-box;font-size:14px;
   }
   #panel h1{font-size:17px;margin:0 0 4px;color:#7a4b2a}
@@ -23,11 +23,14 @@
   #panel button{margin-top:8px;background:#7a4b2a;color:#fff;border:0;border-radius:8px;padding:7px 12px;cursor:pointer;font-size:13px;width:100%}
   #panel button:hover{background:#5e3820}
   .leaflet-popup-content{font-size:13px}
+  #err{display:none;position:absolute;top:10px;right:10px;z-index:2000;max-width:320px;
+       background:#fff;border:2px solid #d33;border-radius:10px;padding:10px 14px;font-size:13px}
   @media(max-width:600px){#panel{width:260px;font-size:13px}}
 </style>
 </head>
 <body>
 <div id="map"></div>
+<div id="err"></div>
 <div id="panel">
   <h1>🚶 Colonia del Sacramento</h1>
   <p class="sub">Stadttour zu Fuß · UNESCO Barrio Histórico + Erweiterung</p>
@@ -37,11 +40,22 @@
   <p class="leg">Klick auf einen Punkt → springt zur Karte. Route: vormittags blau / nachmittags grün / optional orange.</p>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+function fail(msg){
+  const e=document.getElementById('err');
+  e.style.display='block';
+  e.innerHTML='<b>Karte konnte nicht geladen werden</b><br>'+msg+'<br><br>Versuche die Seite neu zu laden oder prüfe deine Internetverbindung.';
+}
+
+// Fallback: falls Leaflet nach 8s noch nicht da ist
+setTimeout(function(){
+  if(typeof L==='undefined'){ fail('Karten-Bibliothek (Leaflet) konnte nicht vom CDN geladen werden.'); }
+},8000);
+
 const stops = [
   {n:1, name:"Portón de Campo",        desc:"Historisches Stadttor mit Zugbrücke (18. Jh.) – Start der Tour.", lat:-34.46235, lng:-57.84610, sec:"morn"},
-  {n:2, name:"Calle de los Suspiros",   desc:"„Straße der Seufzer" – kopfsteingepflastert, Richtung Río de la Plata.", lat:-34.46180, lng:-57.84600, sec:"morn"},
+  {n:2, name:"Calle de los Suspiros",   desc:"\"Straße der Seufzer\" – kopfsteingepflastert, Richtung Río de la Plata.", lat:-34.46180, lng:-57.84600, sec:"morn"},
   {n:3, name:"Plaza Mayor",             desc:"Hauptplatz der Altstadt, koloniale Bauten ringsum.", lat:-34.46200, lng:-57.84670, sec:"morn"},
   {n:4, name:"Basílica del Santísimo Sacramento", desc:"Älteste Kirche Uruguays (~1680), Turmblick.", lat:-34.46160, lng:-57.84620, sec:"morn"},
   {n:5, name:"Faro de Colonia (Leuchtturm)", desc:"Auf den Ruinen des portug. Konvents; beste 360°-Aussicht.", lat:-34.46130, lng:-57.84580, sec:"morn"},
@@ -56,46 +70,50 @@ const stops = [
 const color = {morn:"#1f6feb", aft:"#1a8a3a", opt:"#d98324"};
 const label = {morn:"Vormittag", aft:"Nachmittag", opt:"Optional"};
 
-const map = L.map('map',{zoomControl:true}).setView([-34.4620,-57.8465],16);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-  maxZoom:19, attribution:'© OpenStreetMap'
-}).addTo(map);
+if(typeof L==='undefined'){ fail('Karten-Bibliothek (Leaflet) konnte nicht vom CDN geladen werden.'); }
+else {
+  const map = L.map('map',{zoomControl:true}).setView([-34.4620,-57.8465],16);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:19, attribution:'© OpenStreetMap'
+  }).addTo(map);
 
-const markers = [];
-stops.forEach(s=>{
-  const mk = L.marker([s.lat,s.lng]).addTo(map);
-  mk.bindPopup(`<b>${s.n}. ${s.name}</b><br>${s.desc}`);
-  markers[s.n]=mk;
-});
+  const markers = [];
+  stops.forEach(s=>{
+    const mk = L.marker([s.lat,s.lng]).addTo(map);
+    mk.bindPopup('<b>'+s.n+'. '+s.name+'</b><br>'+s.desc);
+    markers[s.n]=mk;
+  });
 
-const bySec = sec => stops.filter(s=>s.sec===sec);
-function line(sec){
-  const pts = bySec(sec).map(s=>[s.lat,s.lng]);
-  L.polyline(pts,{color:color[sec],weight:4,opacity:.85,dashArray:sec==="opt"?"6 8":null}).addTo(map);
+  const bySec = sec => stops.filter(s=>s.sec===sec);
+  function line(sec){
+    const pts = bySec(sec).map(s=>[s.lat,s.lng]);
+    L.polyline(pts,{color:color[sec],weight:4,opacity:.85,dashArray:sec==="opt"?"6 8":null}).addTo(map);
+  }
+  ["morn","aft","opt"].forEach(line);
+
+  // Gesamtstrecke (Haversine)
+  function hav(a,b,c,d){const R=6371000,t=x=>x*Math.PI/180,f1=t(a),f2=t(c),df=f2-f1,dl=t(d-b),
+    h=Math.sin(df/2)*Math.sin(df/2)+Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)*Math.sin(dl/2);return 2*R*Math.asin(Math.sqrt(h));}
+  let total=0;
+  for(let i=0;i<stops.length-1;i++){total+=hav(stops[i].lat,stops[i].lng,stops[i+1].lat,stops[i+1].lng);}
+  document.getElementById('dist').textContent = 'Gesamtstrecke (Luftlinie): ~'+(total/1000).toFixed(1)+' km';
+
+  // Routenliste
+  const ol = document.getElementById('route');
+  stops.forEach(s=>{
+    const li = document.createElement('li');
+    li.innerHTML = '<b style="color:'+color[s.sec]+'">'+s.name+'</b><br><span style="color:#888;font-size:11px">'+label[s.sec]+'</span>';
+    li.onclick = ()=>{ map.setView([s.lat,s.lng],18); markers[s.n].openPopup(); };
+    ol.appendChild(li);
+  });
+
+  function fitRoute(){
+    const all = stops.map(s=>[s.lat,s.lng]);
+    map.fitBounds(all,{padding:[40,40]});
+  }
+  window.fitRoute = fitRoute;
+  fitRoute();
 }
-["morn","aft","opt"].forEach(line);
-
-// Gesamtstrecke (Haversine)
-function hav(a,b,c,d){const R=6371000,t=x=>x*Math.PI/180,f1=t(a),f2=t(c),df=f2-f1,dl=t(d-b),
-  h=Math.sin(df/2)**2+Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)**2;return 2*R*Math.asin(Math.sqrt(h));}
-let total=0;
-for(let i=0;i<stops.length-1;i++){total+=hav(stops[i].lat,stops[i].lng,stops[i+1].lat,stops[i+1].lng);}
-document.getElementById('dist').textContent = `Gesamtstrecke (Luftlinie): ~${(total/1000).toFixed(1)} km`;
-
-// Routenliste
-const ol = document.getElementById('route');
-stops.forEach(s=>{
-  const li = document.createElement('li');
-  li.innerHTML = `<b style="color:${color[s.sec]}">${s.name}</b><br><span style="color:#888;font-size:11px">${label[s.sec]}</span>`;
-  li.onclick = ()=>{ map.setView([s.lat,s.lng],18); markers[s.n].openPopup(); };
-  ol.appendChild(li);
-});
-
-function fitRoute(){
-  const all = stops.map(s=>[s.lat,s.lng]);
-  map.fitBounds(all,{padding:[40,40]});
-}
-fitRoute();
 </script>
 </body>
 </html>
